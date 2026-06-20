@@ -22,6 +22,7 @@ import {
   TicketCheck,
   Users,
   Wallet,
+  Trash2,
 } from "lucide-react";
 
 type Tab =
@@ -166,7 +167,7 @@ export default function AdminDashboardPage() {
 
           <a
             href="/"
-            className="mt-10 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-[#74687D] hover:bg-[#F7F1F8]"
+            className="mt-10 flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-[#74687D] hover:bg-[#FFF9FD]"
           >
             <LogOut size={18} />
             العودة للموقع
@@ -209,7 +210,7 @@ export default function AdminDashboardPage() {
                 saveContent={saveContent}
               />
             )}
-            {tab === "events" && <EventsManager />}
+            {tab === "events" && <EventsManager refreshStats={loadStats} />}
             {tab === "exhibitors" && <ExhibitorsManager />}
             {tab === "bookings" && <BookingsManager />}
             {tab === "payments" && <PaymentsManager />}
@@ -299,18 +300,176 @@ function ContentEditor(props: any) {
   );
 }
 
-function EventsManager() {
+function EventsManager({ refreshStats }: { refreshStats: () => void }) {
+  const [events, setEvents] = useState<any[]>([]);
+  const [name, setName] = useState("");
+  const [city, setCity] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  async function loadEvents() {
+    if (!supabase) return;
+
+    const { data, error } = await supabase
+      .from("exhibitions")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    setEvents(data || []);
+  }
+
+  async function addEvent() {
+    if (!supabase) {
+      alert("Supabase غير مربوط");
+      return;
+    }
+
+    if (!name) {
+      alert("اكتب اسم المعرض");
+      return;
+    }
+
+    setSaving(true);
+
+    const { error } = await supabase.from("exhibitions").insert({
+      name,
+      city,
+      location,
+      description,
+      start_date: startDate || null,
+      end_date: endDate || null,
+      status: "published",
+    });
+
+    setSaving(false);
+
+    if (error) {
+      console.error(error);
+      alert("صار خطأ أثناء إضافة المعرض");
+      return;
+    }
+
+    setName("");
+    setCity("");
+    setLocation("");
+    setDescription("");
+    setStartDate("");
+    setEndDate("");
+
+    await loadEvents();
+    refreshStats();
+    alert("تمت إضافة المعرض بنجاح");
+  }
+
+  async function deleteEvent(id: string) {
+    if (!supabase) return;
+
+    const confirmDelete = confirm("هل تريد حذف هذا المعرض؟");
+    if (!confirmDelete) return;
+
+    const { error } = await supabase.from("exhibitions").delete().eq("id", id);
+
+    if (error) {
+      console.error(error);
+      alert("صار خطأ أثناء الحذف");
+      return;
+    }
+
+    await loadEvents();
+    refreshStats();
+  }
+
   return (
-    <Panel title="إدارة المعارض والفعاليات">
-      <div className="mb-5 flex justify-between gap-3">
-        <input className="w-full rounded-2xl border border-[#EEE4FF] px-4 py-3 outline-none" placeholder="بحث عن معرض..." />
-        <button className="flex shrink-0 items-center gap-2 rounded-full bg-[#B58CFF] px-6 py-3 font-bold text-white">
-          <PlusCircle size={18} />
-          إضافة معرض
-        </button>
-      </div>
-      <Empty title="لا توجد معارض جاهزة للإدارة" text="سيتم ربط هذا القسم بجدول exhibitions للإنشاء والتعديل والحذف." />
-    </Panel>
+    <div className="grid gap-6 lg:grid-cols-[0.9fr_1.2fr]">
+      <Panel title="إضافة معرض جديد">
+        <div className="grid gap-4">
+          <Field label="اسم المعرض" value={name} onChange={setName} />
+          <Field label="المدينة" value={city} onChange={setCity} />
+          <Field label="الموقع" value={location} onChange={setLocation} />
+          <Area label="وصف المعرض" value={description} onChange={setDescription} />
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <label className="mb-2 block font-bold">تاريخ البداية</label>
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+                className="w-full rounded-2xl border border-[#F0E5FF] px-4 py-3 outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="mb-2 block font-bold">تاريخ النهاية</label>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+                className="w-full rounded-2xl border border-[#F0E5FF] px-4 py-3 outline-none"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={addEvent}
+            disabled={saving}
+            className="flex items-center justify-center gap-2 rounded-full bg-[#B58CFF] px-6 py-4 font-bold text-white disabled:opacity-60"
+          >
+            <PlusCircle size={18} />
+            {saving ? "جاري الإضافة..." : "إضافة معرض"}
+          </button>
+        </div>
+      </Panel>
+
+      <Panel title="المعارض الحالية">
+        <div className="mb-5 flex items-center gap-3 rounded-2xl border border-[#EEE4FF] px-4 py-3">
+          <Search size={18} className="text-[#B58CFF]" />
+          <span className="text-sm text-[#74687D]">المعارض المنشورة في قاعدة البيانات</span>
+        </div>
+
+        <div className="grid gap-4">
+          {events.length === 0 && (
+            <Empty title="لا توجد معارض حالياً" text="أضف أول معرض من النموذج الموجود في هذه الصفحة." />
+          )}
+
+          {events.map((event) => (
+            <div
+              key={event.id}
+              className="rounded-3xl border border-[#F0E5FF] bg-white p-5"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h3 className="text-xl font-black">{event.name}</h3>
+                  <p className="mt-2 text-[#74687D]">{event.city || "بدون مدينة"}</p>
+                  <p className="mt-1 text-sm text-[#74687D]">
+                    {event.start_date || "بدون تاريخ"} - {event.end_date || "بدون تاريخ"}
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => deleteEvent(event.id)}
+                  className="rounded-full bg-red-500 p-3 text-white"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
+    </div>
   );
 }
 
