@@ -1,4 +1,4 @@
-export default function Header() {
+function Header() {
   return (
     <header className="border-b border-[#F0E5FF] bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
@@ -16,3 +16,6 @@ export default function Header() {
     </header>
   );
 }
+
+export { Header };
+export default Header;
