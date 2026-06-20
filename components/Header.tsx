@@ -19,11 +19,11 @@ function Header() {
           </button>
 
           <a
-            href="/login"
-            className="rounded-full bg-[#2D2638] px-5 py-2.5 text-sm font-bold text-white"
-          >
-            دخول
-          </a>
+  href="/login"
+  className="rounded-full bg-[#2D2638] px-5 py-2.5 text-sm font-bold text-white"
+>
+  دخول
+</a>
         </div>
       </div>
     </header>
