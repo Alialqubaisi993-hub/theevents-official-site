@@ -1,0 +1,2 @@
+import { DashboardShell } from "@/components/DashboardShell";
+export default function PaymentsPage(){return <DashboardShell title="Payments"><div className="rounded-[32px] bg-white p-8 shadow-sm"><h2 className="text-2xl font-black">Payment Setup</h2><p className="mt-3 max-w-2xl text-[#74687D]">Manual payment is enabled for launch. Stripe Connect can be connected later for split payments, marketplace commission, and automated organizer payouts.</p></div></DashboardShell>}
