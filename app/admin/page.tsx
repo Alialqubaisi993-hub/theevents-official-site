@@ -133,10 +133,10 @@ export default function AdminDashboardPage() {
     setSaving(false);
 
     if (error) {
-      console.error(error);
-      alert("صار خطأ أثناء الحفظ");
-      return;
-    }
+  console.error(error);
+  alert(error.message);
+  return;
+}
 
     alert("تم حفظ التعديلات بنجاح");
   }
