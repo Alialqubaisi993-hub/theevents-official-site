@@ -2,25 +2,17 @@ import Header from "@/components/Header";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-white text-right" dir="rtl">
+    <main className="min-h-screen bg-[#FFF9FD] text-[#2D2638]" dir="rtl">
       <Header />
-
-      <section className="max-w-7xl mx-auto px-6 py-20">
-        <h1 className="text-6xl font-black mb-6">
-          ثيفنت
-        </h1>
-
-        <p className="text-2xl text-gray-600 mb-10">
-          منصة إدارة المعارض والفعاليات في الإمارات
+      <section className="mx-auto max-w-7xl px-6 py-20">
+        <h1 className="text-6xl font-black">?????</h1>
+        <p className="mt-6 text-2xl text-[#74687D]">
+          ???? ????? ??????? ???? ??????? ?? ????????
         </p>
-
-        <div className="bg-gray-100 rounded-3xl p-10 text-center">
-          <h2 className="text-3xl font-bold mb-4">
-            لا توجد معارض حالياً
-          </h2>
-
-          <p className="text-gray-500">
-            سيتم عرض المعارض الحقيقية المضافة من لوحة التحكم هنا
+        <div className="mt-12 rounded-[32px] bg-white p-10 shadow-sm">
+          <h2 className="text-3xl font-black">?? ???? ????? ??????</h2>
+          <p className="mt-3 text-[#74687D]">
+            ???? ??? ??????? ???????? ??? ??????? ?? ???? ???? ??????.
           </p>
         </div>
       </section>
